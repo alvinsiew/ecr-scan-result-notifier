@@ -1,8 +1,12 @@
 package main
 
 import (
-	"../../internal/awsmod"
-	"../../internal/slack"
+	"ecr-scan-result-notifier/internal/awsmod"
+	"ecr-scan-result-notifier/internal/slack"
+	"strings"
+
+	//"../../internal/awsmod"
+	//"../../internal/slack"
 	"context"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -15,6 +19,7 @@ import (
 var encryptedChannel string = os.Getenv("CHANNEL")
 var encryptedUserName string = os.Getenv("USERNAME")
 var encryptedWebHookURL string = os.Getenv("WEBHOOKURL")
+var exclude string = os.Getenv("EXCLUDE")
 var kmsARN string = os.Getenv("KMS_ARN")
 var decryptedChannel string
 var decryptedUserName string
@@ -73,9 +78,12 @@ func HandleRequest(ctx context.Context, event awsmod.SimpleType) (events.APIGate
 		TitleLink: "https://console.aws.amazon.com/ecr/repositories/" + event.Detail.RepositoryName + "/image/" + event.Detail.ImageDigest + "/scan-results/?region=ap-southeast-1",
 	}
 
-	err := sc.SendJobNotification(sr)
-	if err != nil {
-		log.Fatal(err)
+	// Contains returns false here.
+	if !strings.Contains(event.Detail.RepositoryName, exclude) {
+		err := sc.SendJobNotification(sr)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	return events.APIGatewayProxyResponse{
