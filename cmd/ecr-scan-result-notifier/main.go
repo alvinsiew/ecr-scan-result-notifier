@@ -80,9 +80,11 @@ func HandleRequest(ctx context.Context, event awsmod.SimpleType) (events.APIGate
 
 	// Contains returns false here.
 	if !strings.Contains(event.Detail.RepositoryName, exclude) {
-		err := sc.SendJobNotification(sr)
-		if err != nil {
-			log.Fatal(err)
+		if h != 0 || c != 0 {
+			err := sc.SendJobNotification(sr)
+			if err != nil {
+				log.Fatal(err)
+			}
 		}
 	}
 
