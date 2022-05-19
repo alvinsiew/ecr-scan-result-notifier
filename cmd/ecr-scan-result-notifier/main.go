@@ -1,19 +1,17 @@
 package main
 
 import (
+	"context"
 	"ecr-scan-result-notifier/internal/awsmod"
 	"ecr-scan-result-notifier/internal/slack"
-	"strings"
-
-	//"../../internal/awsmod"
-	//"../../internal/slack"
-	"context"
-	"github.com/aws/aws-lambda-go/events"
-	"github.com/aws/aws-lambda-go/lambda"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
+
+	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-lambda-go/lambda"
 )
 
 var encryptedChannel string = os.Getenv("CHANNEL")
@@ -25,7 +23,7 @@ var decryptedChannel string
 var decryptedUserName string
 var decryptedWebHookURL string
 
-func HandleRequest(ctx context.Context, event awsmod.SimpleType) (events.APIGatewayProxyResponse, error) {
+func HandleRequest(ctx context.Context, event events.ECRScanEvent) (events.APIGatewayProxyResponse, error) {
 
 	decryptedWebHookURL = string(awsmod.AwsKmsDecrypt(encryptedWebHookURL, kmsARN).Plaintext[:])
 	decryptedUserName = string(awsmod.AwsKmsDecrypt(encryptedUserName, kmsARN).Plaintext[:])
